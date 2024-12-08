@@ -31,20 +31,30 @@ export function getPrefix(str) {
 }
 
 /**
- * Defines how ticks will be formatted.
+* Defines how ticks will be formatted.
  *
  * Examples: 200 aa, 2.4 kbp, 7.6 Mbp.
  *
  * Borrowed from Kablammo. Modified by Priyam based on https://github.com/mbostock/d3/issues/1722.
  */
 export function tick_formatter(scale, seq_type) {
-    var prefix = d3.format('~s')
-    var suffixes = {amino_acid: 'aa', nucleic_acid: 'bp'};
+    const prefix = d3.format('~s')
+    const suffixes = {amino_acid: 'aa', nucleic_acid: 'bp'};
 
     return function (d) {
-        return `${prefix(d)}${suffixes[seq_type]}`
-            .replace(/([a-zA-Z]+)/, ' $1')
+        const formatted = prefix(d);
+
+        return `${formatNumberUnits(formatted)}${suffixes[seq_type]}`;
     };
+}
+
+export function formatNumberUnits(number) {
+    const suffix = number.replace(/[0-9.]/g, '');
+    const numericPart = parseFloat(number).toFixed(2);
+    // Round to 1 decimal place
+    const rounded = Math.round(numericPart * 10) / 10;
+
+    return `${rounded % 1 === 0 ? rounded.toFixed(0) : rounded} ${suffix}`;
 }
 
 export function get_seq_type(algorithm) {
